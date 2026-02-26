@@ -16,6 +16,8 @@ namespace PokerGame.Services
 
         public void ResetRound() { TotalPot = 0; CurrentBet = 0; }
         
+        public void ResetBettingRound() { CurrentBet = 0; }
+        
         public void SetCurrentBet(int amt) => CurrentBet = amt;
 
         public void ProcessAction(PlayerData p, PlayerAction a, int amt = 0)

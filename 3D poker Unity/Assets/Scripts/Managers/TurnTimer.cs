@@ -19,9 +19,17 @@ namespace PokerGame.Managers
 
         public void StartRound(int startIdx)
         {
+            StopTimer();
             _activeRound = true;
             _currentIdx = startIdx;
             Advance();
+        }
+
+        public void StopTimer()
+        {
+            if (_timer != null) StopCoroutine(_timer);
+            _timer = null;
+            _activeRound = false;
         }
 
         private void Advance()
@@ -45,27 +53,35 @@ namespace PokerGame.Managers
             }
 
             EventBus.TurnChanged(p.Id);
-            if (p.IsAI) StartCoroutine(AITurn(p));
-            else _timer = StartCoroutine(Countdown(p));
+            Debug.Log($"[TurnTimer] Starting turn for Player {p.Id} ({p.Name})");
+            _timer = StartCoroutine(TurnRoutine(p));
         }
 
-        private IEnumerator Countdown(PlayerData p)
+        private IEnumerator TurnRoutine(PlayerData p)
         {
+            float totalTime = p.IsAI ? Random.Range(1.5f, 3f) : 15f;
             float elapsed = 0;
-            while (elapsed < 15f)
+
+            while (elapsed < totalTime)
             {
                 elapsed += Time.deltaTime;
-                EventBus.TurnTimerTick(p.Id, 15f - elapsed);
+                // Consistent real-time countdown for everyone (15s decreasing normally)
+                float displayTime = 15f - elapsed;
+                EventBus.TurnTimerTick(p.Id, displayTime);
                 yield return null;
             }
-            SubmitAction(p.Id, p.CurrentBet < _gm.Chips.CurrentBet ? PlayerAction.Fold : PlayerAction.Check, 0);
-        }
+            Debug.Log($"[TurnTimer] Time up for Player {p.Id}");
 
-        private IEnumerator AITurn(PlayerData p)
-        {
-            yield return new WaitForSeconds(Random.Range(1f, 2.5f));
-            var action = _gm.Evaluator.DecideAIAction(p, _gm.CommunityCards.ToArray(), _gm.Chips.CurrentBet, _gm.Chips.TotalPot, out int curAmt);
-            SubmitAction(p.Id, action, curAmt);
+            if (p.IsAI)
+            {
+                var action = _gm.Evaluator.DecideAIAction(p, _gm.CommunityCards.ToArray(), _gm.Chips.CurrentBet, _gm.Chips.TotalPot, out int curAmt);
+                SubmitAction(p.Id, action, curAmt);
+            }
+            else
+            {
+                // Timeout action for human
+                SubmitAction(p.Id, p.CurrentBet < _gm.Chips.CurrentBet ? PlayerAction.Fold : PlayerAction.Check, 0);
+            }
         }
 
         public void SubmitAction(int id, PlayerAction action, int amt = 0)
@@ -89,9 +105,20 @@ namespace PokerGame.Managers
         {
             var active = _gm.Players.Where(p => !p.IsFolded && !p.IsAllIn).ToList();
             if (active.Count == 0) return true;
+            
+            // 1. Everyone must have matched the CurrentBet
             bool allMatched = active.All(p => p.CurrentBet == _gm.Chips.CurrentBet);
-            bool allActed = active.All(p => p.CurrentBet > 0 || _gm.Chips.CurrentBet == 0 || p.TotalBetRound > 0);
-            return allMatched && allActed;
+            
+            // 2. Everyone must have had a chance to act in THIS round
+            // If someone hasn't acted yet (CurrentBet == 0 AND others haven't bet), we need to let them check.
+            // If someone has matched the Big Blind or a Raise, they are done.
+            bool everyoneActed = active.All(p => p.CurrentBet > 0 || _gm.Chips.CurrentBet == 0);
+            
+            // Edge case: Big Blind option to raise. If CurrentBet is 20 and everyone is at 20, 
+            // but the BB hasn't "acted" (checked) yet, we continue.
+            // However, for this simple engine, we consider the round done if everyone matches.
+            
+            return allMatched && everyoneActed;
         }
 
         private void NextState()

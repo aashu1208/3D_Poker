@@ -65,11 +65,19 @@ namespace PokerGame.Managers
 
         public void RestartMatch()
         {
+            StopAllCoroutines();
+            TurnTimer.StopTimer();
+            
+            DealerIdx = 0;
+            CommunityCards.Clear();
+            Chips.ResetRound();
+            
             foreach (var p in Players)
             {
                 p.Chips = StartingChips;
                 p.ResetForNewRound();
             }
+            
             EventBus.GameRestarted();
             StateMachine.TransitionTo(GameState.PreFlop);
         }

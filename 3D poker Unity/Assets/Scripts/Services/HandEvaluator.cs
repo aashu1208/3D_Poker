@@ -67,8 +67,14 @@ namespace PokerGame.Services
         public PokerHand Evaluate(CardData[] holeCards, CardData[] communityCards)
         {
             var cards = holeCards.Concat(communityCards).ToArray();
-            PokerHand best = null;
+            
+            if (cards.Length < 5)
+            {
+                // Fallback for fewer than 5 cards: basic rank evaluation
+                return Eval5(cards); 
+            }
 
+            PokerHand best = null;
             foreach (var combo in Combinations(cards, 5))
             {
                 var h = Eval5(combo);
@@ -81,8 +87,10 @@ namespace PokerGame.Services
 
         private PokerHand Eval5(CardData[] c)
         {
+            if (c.Length == 0) return new PokerHand(HandRank.HighCard, c, new int[0]);
+            
             Array.Sort(c, (a, b) => ((int)b.Rank).CompareTo((int)a.Rank));
-            bool isFlush = c.All(x => x.Suit == c[0].Suit);
+            bool isFlush = c.Length >= 5 && c.All(x => x.Suit == c[0].Suit);
             bool isStraight = IsStraight(c, out int hr);
             var g = c.GroupBy(x => x.Rank).Select(x => x.ToList()).OrderByDescending(x => x.Count).ThenByDescending(x => (int)x[0].Rank).ToList();
 
@@ -91,9 +99,21 @@ namespace PokerGame.Services
             if (g.Any(x => x.Count == 3) && g.Any(x => x.Count == 2)) return new PokerHand(HandRank.FullHouse, c, new[] { (int)g[0][0].Rank, (int)g[1][0].Rank });
             if (isFlush) return new PokerHand(HandRank.Flush, c, c.Select(x => (int)x.Rank).ToArray());
             if (isStraight) return new PokerHand(HandRank.Straight, c, new[] { hr });
-            if (g.Any(x => x.Count == 3)) return new PokerHand(HandRank.ThreeOfAKind, c, new[] { (int)g[0][0].Rank, (int)g[1][0].Rank, (int)g[2][0].Rank });
-            if (g.Count(x => x.Count == 2) == 2) return new PokerHand(HandRank.TwoPair, c, new[] { (int)g[0][0].Rank, (int)g[1][0].Rank, (int)g[2][0].Rank });
-            if (g.Any(x => x.Count == 2)) return new PokerHand(HandRank.OnePair, c, new[] { (int)g[0][0].Rank, (int)g[1][0].Rank, (int)g[2][0].Rank, (int)g[3][0].Rank });
+            if (g.Any(x => x.Count == 3)) 
+            {
+                var kickers = g.Skip(1).Select(x => (int)x[0].Rank).ToArray();
+                return new PokerHand(HandRank.ThreeOfAKind, c, new[] { (int)g[0][0].Rank }.Concat(kickers).ToArray());
+            }
+            if (g.Count(x => x.Count == 2) >= 2) 
+            {
+                var kickers = g.Skip(2).Take(1).Select(x => (int)x[0].Rank).ToArray();
+                return new PokerHand(HandRank.TwoPair, c, new[] { (int)g[0][0].Rank, (int)g[1][0].Rank }.Concat(kickers).ToArray());
+            }
+            if (g.Any(x => x.Count == 2)) 
+            {
+                var kickers = g.Skip(1).Select(x => (int)x[0].Rank).ToArray();
+                return new PokerHand(HandRank.OnePair, c, new[] { (int)g[0][0].Rank }.Concat(kickers).ToArray());
+            }
             
             return new PokerHand(HandRank.HighCard, c, c.Select(x => (int)x.Rank).ToArray());
         }
@@ -110,7 +130,10 @@ namespace PokerGame.Services
 
         private IEnumerable<CardData[]> Combinations(CardData[] c, int choose)
         {
-            int n = c.Length; int[] idx = Enumerable.Range(0, choose).ToArray();
+            int n = c.Length; 
+            if (n < choose) yield break;
+            
+            int[] idx = Enumerable.Range(0, choose).ToArray();
             while (true)
             {
                 yield return idx.Select(i => c[i]).ToArray();

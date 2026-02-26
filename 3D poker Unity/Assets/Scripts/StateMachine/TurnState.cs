@@ -10,6 +10,7 @@ namespace PokerGame.StateMachine
 
         public void Enter()
         {
+            _gm.Chips.ResetBettingRound();
             var card = new[] { _gm.Deck.DealCard() };
             _gm.CommunityCards.AddRange(card);
             EventBus.CommunityCardsRevealed(card);
