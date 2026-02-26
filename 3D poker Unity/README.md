@@ -23,10 +23,9 @@ The game flow is managed by a structured State Machine:
 - `ShowdownState`: Reveal hands, distribute pot, and reset.
 
 ### C. Multiplayer Readiness (Network Abstraction)
-- **INetworkAdapter**: An interface that abstracts all player actions.
-- **LocalNetworkAdapter**: Currently used for local simulation.
-- **Action Flow**: All UI inputs (Fold, Call, Raise) are sent to the `INetworkAdapter`, which then forwards them to the Game Logic. This mirrors exactly how a real networked game works.
-- **Scalability**: To convert this to online multiplayer (e.g., Photon), you only need to create a `PhotonNetworkAdapter` and swap it in the `GameManager` initialization. No game logic changes required.
+- **INetworkAdapter**: An interface (`INetworkAdapter.cs`) that abstracts all player actions. It includes a local simulation setup.
+- **Action Flow**: All UI inputs (Fold, Call, Raise) are sent through the `INetworkAdapter`, which then forwards them to the game logic. This mirrors exactly how a real networked game works.
+- **Scalability**: To convert this to online multiplayer, you only need to implement the `INetworkAdapter` for your network solution (e.g., Photon) and swap it in the `GameManager`.
 
 ### D. Event-Driven Communication (EventBus)
 The UI and 3D Visuals are completely decoupled from the game logic through the `EventBus`.

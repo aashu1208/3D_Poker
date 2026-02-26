@@ -19,7 +19,7 @@ namespace PokerGame.Services
                 foreach (Rank rank in Enum.GetValues(typeof(Rank)))
                     _deck.Add(new CardData(suit, rank));
             
-            // Fisher-Yates
+            
             for (int i = _deck.Count - 1; i > 0; i--)
             {
                 int j = _rng.Next(0, i + 1);

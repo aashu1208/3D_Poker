@@ -1,6 +1,4 @@
 # Poker Architecture Overview
-
-```mermaid
 graph TD
     subgraph Core_Logic
         GM[GameManager] --> SMC[GameStateController]
