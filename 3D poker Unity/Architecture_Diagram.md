@@ -25,6 +25,7 @@ graph TD
     subgraph Visuals_and_UI
         EB -- Listens --> UI[UIManager]
         EB -- Listens --> TV[Table3DVisuals]
+        UI -- "Action Request" --> NA
     end
 
     subgraph Data_Configuration

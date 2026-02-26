@@ -17,6 +17,13 @@ namespace PokerGame.UI
         [SerializeField] private Image[] _communityCards;
         [SerializeField] private CardDatabaseSO _cardDatabase;
 
+        [Header("Action Panel")]
+        [SerializeField] private GameObject _actionPanel;
+
+        public void OnFoldClick() => _gm?.TurnTimer.RequestAction(PlayerAction.Fold);
+        public void OnCallClick() => _gm?.TurnTimer.RequestAction(_gm.Chips.CurrentBet > _gm.Players[0].CurrentBet ? PlayerAction.Call : PlayerAction.Check);
+        public void OnRaiseClick() => _gm?.TurnTimer.RequestAction(PlayerAction.Raise, _gm.Chips.CurrentBet + 20); // Simple raise
+
         private void OnEnable()
         {
             EventBus.OnGameStateChanged += OnStateChanged;
@@ -74,6 +81,8 @@ namespace PokerGame.UI
             if (_seats == null) return;
             foreach(var s in _seats) if(s != null) s.SetActive(false); 
             if(id < _seats.Length && _seats[id] != null) _seats[id].SetActive(true); 
+
+            if (_actionPanel != null) _actionPanel.SetActive(id == 0);
         }
         private void OnAction(int id, PlayerAction a, int amt) { if(_seats != null && id < _seats.Length && _seats[id] != null) _seats[id].SetAction(a, amt); }
         private void OnHoleCards(int id, CardData[] c) { if(_seats != null && id < _seats.Length && _seats[id] != null && _gm != null) _seats[id].SetHoleCards(c, !(_gm.Players[id].IsAI)); }

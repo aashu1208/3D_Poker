@@ -49,6 +49,7 @@ namespace PokerGame.Managers
                 Players.Add(new PlayerData(i, i == 0 ? "You" : $"AI {i}", StartingChips, i != 0));
 
             TurnTimer.Init(this);
+            Network.Init(TurnTimer);
 
             StateMachine = new GameStateController();
             StateMachine.RegisterState(GameState.Idle, new IdleState()); // Empty state

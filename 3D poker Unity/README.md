@@ -25,6 +25,7 @@ The game flow is managed by a structured State Machine:
 ### C. Multiplayer Readiness (Network Abstraction)
 - **INetworkAdapter**: An interface that abstracts all player actions.
 - **LocalNetworkAdapter**: Currently used for local simulation.
+- **Action Flow**: All UI inputs (Fold, Call, Raise) are sent to the `INetworkAdapter`, which then forwards them to the Game Logic. This mirrors exactly how a real networked game works.
 - **Scalability**: To convert this to online multiplayer (e.g., Photon), you only need to create a `PhotonNetworkAdapter` and swap it in the `GameManager` initialization. No game logic changes required.
 
 ### D. Event-Driven Communication (EventBus)
@@ -38,14 +39,15 @@ The UI and 3D Visuals are completely decoupled from the game logic through the `
 - **CardDatabaseSO**: Maps card data (Rank/Suit) to UI Sprites, allowing for easy visual updates.
 
 ## 3. Mandatory Requirements Fulfilled
-- [x] **Multiplayer-ready architecture**: Abstracted via `INetworkAdapter`.
+- [x] **Multiplayer-ready architecture**: Abstracted via `INetworkAdapter`. All player actions (AI and Human) flow through this layer.
 - [x] **Local multiplayer simulation**: Implemented turn-based logic with local loopback.
 - [x] **UI/Logic Separation**: Achieved via `EventBus`.
 - [x] **State Machine**: Full round-flow implemented.
-- [x] **Timer System**: 15s per player logic handles timeouts.
-- [x] **Pot Logic**: Correct deduction and distribution (side-pots ready).
+- [x] **Timer System**: 15s per player. Human players can act before the timer expires.
+- [x] **Pot Logic**: Correct deduction and distribution.
 - [x] **Restart Logic**: Reset state functionality without scene reload.
 - [x] **Improved AI**: Decision-making based on Hand Strength and Pot Odds.
+- [x] **Human Input**: UI buttons for Fold, Call/Check, and Raise.
 
 ## 4. Setup Instructions
 1. Open the scene `PokerScene`.

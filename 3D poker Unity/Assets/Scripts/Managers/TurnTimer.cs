@@ -2,6 +2,7 @@ using System.Collections;
 using System.Linq;
 using UnityEngine;
 using PokerGame.Core;
+using PokerGame.Network;
 
 namespace PokerGame.Managers
 {
@@ -87,6 +88,11 @@ namespace PokerGame.Managers
         public void SubmitAction(int id, PlayerAction action, int amt = 0)
         {
             if (!_activeRound) return;
+            
+            // If human player submits, we stop the 15s timer immediately
+            if (_timer != null) StopCoroutine(_timer);
+            _timer = null;
+
             var p = _gm.Players[id];
             _gm.Chips.ProcessAction(p, action, amt);
             
@@ -99,6 +105,13 @@ namespace PokerGame.Managers
 
             _currentIdx = (_currentIdx + 1) % _gm.Players.Count;
             Advance();
+        }
+
+        // Bridge for UI to call
+        public void RequestAction(PlayerAction action, int amt = 0)
+        {
+            // Architecture: UI calls Network, Network calls Game
+            _gm.Network.SendPlayerAction(0, action, amt);
         }
 
         private bool IsBettingDone()

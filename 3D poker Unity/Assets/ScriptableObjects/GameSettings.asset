@@ -15,5 +15,5 @@ MonoBehaviour:
   PlayerCount: 4
   StartingChips: 1000
   SmallBlindAmount: 10
-  BigBlindAmount: 30
+  BigBlindAmount: 20
   TurnTimeLimit: 15
