@@ -3611,6 +3611,7 @@ MonoBehaviour:
   - {fileID: 424463737}
   - {fileID: 1181933442}
   - {fileID: 1989156095}
+  _cardDatabase: {fileID: 0}
 --- !u!4 &833182970
 Transform:
   m_ObjectHideFlags: 0
@@ -3820,12 +3821,8 @@ MonoBehaviour:
   _potLabel: {fileID: 255084525}
   _stateLabel: {fileID: 1247509502}
   _winnerLabel: {fileID: 619280978}
-  _communityCards:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
+  _communityCards: []
+  _cardDatabase: {fileID: 11400000, guid: bcb6744a710744ea7ac49c40d5605e8d, type: 2}
 --- !u!1 &1145449663
 GameObject:
   m_ObjectHideFlags: 0
@@ -6586,10 +6583,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b104000747c42497096ae8ade489e54b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  PlayerCount: 4
-  StartingChips: 1000
-  SmallBlindAmt: 10
-  BigBlindAmt: 20
+  Settings: {fileID: 11400000, guid: f4f771d4668024ea88216ac0232f1ee5, type: 2}
   TurnTimer: {fileID: 2121280130}
   DealerIdx: 0
 --- !u!4 &2121280132

@@ -13,10 +13,13 @@ namespace PokerGame.Managers
     /// </summary>
     public class GameManager : MonoBehaviour
     {
-        public int PlayerCount = 4;
-        public int StartingChips = 1000;
-        public int SmallBlindAmt = 10;
-        public int BigBlindAmt = 20;
+        [Header("Configuration")]
+        public GameSettingsSO Settings;
+
+        public int SmallBlindAmt => Settings != null ? Settings.SmallBlindAmount : 10;
+        public int BigBlindAmt => Settings != null ? Settings.BigBlindAmount : 20;
+        public int StartingChips => Settings != null ? Settings.StartingChips : 1000;
+        public int PlayerCount => Settings != null ? Settings.PlayerCount : 4;
 
         [Header("References")]
         public TurnTimer TurnTimer;

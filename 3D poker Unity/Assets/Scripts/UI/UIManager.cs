@@ -15,6 +15,7 @@ namespace PokerGame.UI
         [SerializeField] private TextMeshProUGUI _stateLabel;
         [SerializeField] private TextMeshProUGUI _winnerLabel;
         [SerializeField] private Image[] _communityCards;
+        [SerializeField] private CardDatabaseSO _cardDatabase;
 
         private void OnEnable()
         {
@@ -84,8 +85,23 @@ namespace PokerGame.UI
             for(int i = 0; i < _communityCards.Length; i++)
             {
                 if (_communityCards[i] == null) continue;
-                if(i < all.Count) _communityCards[i].color = Color.white; // Set sprite based on all[i]
-                else _communityCards[i].color = Color.gray;
+                if(i < all.Count) 
+                {
+                    _communityCards[i].color = Color.white;
+                    if (_cardDatabase != null)
+                    {
+                        var sprite = _cardDatabase.GetSprite(all[i].Rank, all[i].Suit);
+                        if (sprite != null) _communityCards[i].sprite = sprite;
+                    }
+                }
+                else 
+                {
+                    _communityCards[i].color = Color.gray;
+                    if (_cardDatabase != null)
+                    {
+                        if (_cardDatabase.CardBackSprite != null) _communityCards[i].sprite = _cardDatabase.CardBackSprite;
+                    }
+                }
             }
         }
 

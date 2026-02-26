@@ -21,7 +21,7 @@ namespace PokerGame.Visuals
         
         [Header("Player Positions")]
         public Transform[] PlayerSeats3D;      // Where the 3D players sit
-        public Transform[] CardSpawnPoints;    // Array of 2 points per player (e.g. 0,1 for P0; 2,3 for P1...)
+        public Transform[] CardSpawnPoints;    // Array of 2 points per player
 
         private List<GameObject> _spawnedCards = new List<GameObject>();
         private List<GameObject> _spawnedChips = new List<GameObject>();
@@ -88,9 +88,7 @@ namespace PokerGame.Visuals
         {
             if (CardPrefab3D == null || CommunityCardSpots == null) return;
 
-            // 'cards' is the delta (the new cards revealed in the current state)
-            // But sometimes the state sends the WHOLE list. To be safe, we track
-            // how many cards we've already physically spawned on the table.
+            
             int alreadySpawned = _communityCards.Count;
             
             for (int i = 0; i < cards.Length; i++)
